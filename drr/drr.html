@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        input[type="text"] {
+            width: 100%;
+        }
+        .excluded-date {
+            background-color: #ffcccc;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Action</th>
+            <th>ID</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Month</th>
+            <th>Year</th>
+            <th>Date Excluded</th>
+            <th>No. of Days</th>
+            <th>Lead Count</th>
+            <th>Expected Lead Count</th>
+        </tr>
+        <tr>
+            <td><input type="text" name="action"></td>
+            <td><input type="text" name="id"></td>
+            <td><input type="date" name="start_date" onchange="updateDates(this)"></td>
+            <td><input type="date" name="end_date" onchange="updateDates(this)"></td>
+            <td><input type="text" name="month" disabled></td>
+            <td><input type="text" name="year" disabled></td>
+            <td><input type="date" name="date_excluded" onchange="updateDates(this)"></td>
+            <td><input type="text" name="num_of_days" disabled></td>
+            <td><input type="number" name="lead_count" oninput="updateExpectedLeadCount()"></td>
+            <td><input type="text" name="expected_lead_count" disabled></td>
+        </tr>
+    </table>
+    <button onclick="addRow()">Add Row</button>
+    <button onclick="submitData()">Submit</button>
+
+    <script>
+        function addRow() {
+            var table = document.querySelector("table");
+            var newRow = table.insertRow(-1);
+            var rowTemplate = table.rows[1].cloneNode(true);
+            newRow.innerHTML = rowTemplate.innerHTML;
+            var startInput = newRow.querySelector("input[name='start_date']");
+            var endInput = newRow.querySelector("input[name='end_date']");
+            startInput.value = "";
+            endInput.value = "";
+        }
+
+        function updateDates(input) {
+            var row = input.parentElement.parentElement;
+            var startDate = new Date(row.querySelector("input[name='start_date']").value);
+            var endDate = new Date(row.querySelector("input[name='end_date']").value);
+
+            var monthInput = row.querySelector("input[name='month']");
+            var yearInput = row.querySelector("input[name='year']");
+            var numDaysInput = row.querySelector("input[name='num_of_days']");
+
+            if (!isNaN(startDate) && !isNaN(endDate) && startDate <= endDate) {
+                var options = { year: 'numeric', month: 'long' };
+                monthInput.value = startDate.toLocaleDateString('en-US', options);
+                yearInput.value = startDate.getFullYear();
+                
+                var daysDiff = (endDate - startDate) / (1000 * 60 * 60 * 24);
+                numDaysInput.value = daysDiff;
+            } else {
+                monthInput.value = "";
+                yearInput.value = "";
+                numDaysInput.value = "";
+            }
+
+            updateExpectedLeadCount();
+        }
+
+        function excludeDates() {
+            var row = document.querySelector("table tr:last-child");
+            var startDate = new Date(row.querySelector("input[name='start_date']").value);
+            var endDate = new Date(row.querySelector("input[name='end_date']").value);
+
+            var dateExcludedInput = row.querySelector("input[name='date_excluded']");
+
+            if (!isNaN(startDate) && !isNaN(endDate) && startDate <= endDate) {
+                var excludedDates = findExcludedDates(startDate, endDate);
+                dateExcludedInput.value = excludedDates.join(", ");
+            }
+        }
+
+        function updateExpectedLeadCount() {
+            var rows = document.querySelectorAll("table tr");
+            for (var i = 1; i < rows.length; i++) {
+                var row = rows[i];
+                var leadCount = parseInt(row.querySelector("input[name='lead_count']").value);
+                var numDays = parseInt(row.querySelector("input[name='num_of_days']").value);
+                var expectedLeadCount = isNaN(leadCount) || isNaN(numDays) ? '' : leadCount / numDays;
+                row.querySelector("input[name='expected_lead_count']").value = expectedLeadCount.toFixed(2);
+            }
+        }
+
+        function findExcludedDates(startDate, endDate) {
+            // Add your logic to find excluded dates here.
+            // For simplicity, we'll return an empty array in this example.
+            return [];
+        }
+        // Function to simulate an AJAX submission
+
+
+
+        // submit data
+
+      
+
+
+
+
+    // Event listener for the 'Submit' button
+    document.getElementById('submit_button').addEventListener('click', function () {
+        // Gather the data to submit
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const month = document.getElementById('month_result').textContent;
+        const year = document.getElementById('year_result').textContent;
+        const excludedDates = document.getElementById('excluded_dates').value;
+        const numDays = document.getElementById('days_result').textContent;
+        const leadCount = document.getElementById('lead_count').value;
+        const expectedLeadCount = document.getElementById('expected_lead_count').value;
+
+        // Create an object to hold the data
+        const data = {
+            startDate,
+            endDate,
+            month,
+            year,
+            excludedDates,
+            numDays,
+            leadCount,
+            expectedLeadCount
+        };
+
+        // Simulate AJAX submission and handle the response
+        simulateAjaxSubmission(data, function (error, response) {
+            if (!error) {
+                alert(response); // Display a success message (you can customize this)
+                // Add submitted data to the report table
+                addRowToReportTable(data);
+                // Clear input fields
+                document.getElementById('excluded_dates').value = '';
+                document.getElementById('lead_count').value = '';
+                document.getElementById('expected_lead_count').value = '';
+            } else {
+                alert("An error occurred during submission."); // Display an error message
+            }
+        });
+    });
+
+
+      
+
+    </script>
+</body>
+</html>
